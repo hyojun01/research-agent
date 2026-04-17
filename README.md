@@ -33,4 +33,3 @@ See [docs/architecture.md](docs/architecture.md) for detailed architecture docum
 ## License
 
 MIT
-# research-agent

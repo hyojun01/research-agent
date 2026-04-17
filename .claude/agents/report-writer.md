@@ -1,7 +1,7 @@
 ---
 name: report-writer
 description: Synthesizes evaluated evidence into a polished, well-structured report. Use after the source-evaluator has produced an evidence summary. Handles markdown, and delegates to docx/pdf skills when those formats are requested.
-tools: Read, Write, Edit, Bash(python3 *), Bash(mkdir *)
+tools: Read, Write, Edit, Bash(mkdir *)
 model: opus
 ---
 

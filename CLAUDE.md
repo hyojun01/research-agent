@@ -48,3 +48,10 @@ This is often a multi-step task. When context grows large:
 - Commit intermediate findings to `sources/` as markdown files
 - Update `research-progress.json` with completed steps
 - Use subagents to isolate search and analysis from the main thread
+
+## research-progress.json Lifecycle
+
+- **Starting a new topic:** overwrite the file in full with fresh values and set `started_at` to the current timestamp. Do not append to a prior run's state.
+- **During a run:** update only the fields that changed (`status`, `current_step`, `sub_questions_completed`, `sources_collected`, `updated_at`). Preserve `topic`, `plan`, and `started_at`.
+- **Completed run:** set `status` to `complete`, `report_written` to `true`, and fill `report_path`. Leave the file in place — the next `/research` invocation will overwrite it.
+- **Interrupted run:** if `status` is `researching` or `evaluating` at session start and the topic matches a user request to resume, continue from `current_step`. If the topic differs, overwrite.

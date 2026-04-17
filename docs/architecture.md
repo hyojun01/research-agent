@@ -31,10 +31,10 @@ research-agent/
 │   ├── commands/                      # Slash commands (entry points)
 │   │   ├── research.md                # /research — full pipeline
 │   │   └── quick-brief.md            # /quick-brief — fast summary
-│   └── rules/                         # Rules (auto-applied by glob pattern)
-│       ├── citation-standards.md      # Applied to output/**, sources/**
-│       ├── source-quality.md          # Applied to sources/**
-│       └── output-formatting.md       # Applied to output/**
+│   └── rules/                         # Reference rule documents (loaded as project instructions)
+│       ├── citation-standards.md      # Cited by agents writing to output/**, sources/**
+│       ├── source-quality.md          # Cited by agents writing to sources/**
+│       └── output-formatting.md       # Cited by agents writing to output/**
 ├── research-plans/                    # Research plan storage
 ├── sources/                           # Collected source notes
 ├── output/                            # Final report output
@@ -76,12 +76,14 @@ Only the `name` and `description` from SKILL.md are pre-loaded into the system p
 /quick-brief latest Fed interest rate decision
 ```
 
-### 5. Rules — Auto-applied constraints
+### 5. Rules — Reference constraints
 
-Applied automatically via `globs` patterns when working on specific files/directories:
-- `citation-standards.md` → `output/**`, `sources/**`
-- `source-quality.md` → `sources/**`
-- `output-formatting.md` → `output/**`
+Rule files under `.claude/rules/` are loaded as project instructions alongside `CLAUDE.md` at session start. They are not glob-scoped — Claude Code does not provide that mechanism — but the rule text specifies the directories each rule applies to, and the agents honor those scopes when writing:
+- `citation-standards.md` → applies to `output/**`, `sources/**`
+- `source-quality.md` → applies to `sources/**`
+- `output-formatting.md` → applies to `output/**`
+
+If stricter enforcement is needed, add a `PreToolUse` hook in `settings.json` that inspects the target path.
 
 ### 6. research-progress.json — Cross-session continuity
 

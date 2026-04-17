@@ -15,7 +15,11 @@
     ],
     "deny": [
       "Bash(rm -rf *)",
-      "Bash(curl * | bash)",
+      "Bash(rm -fr *)",
+      "Bash(rm -r -f *)",
+      "Bash(rm -f -r *)",
+      "Bash(rm -Rf *)",
+      "Bash(rm -fR *)",
       "Bash(sudo *)"
     ]
   }

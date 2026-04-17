@@ -4,33 +4,41 @@ Extract, deduplicate, and format all sources from research note files.
 Usage: python3 extract_sources.py <sources_directory> [output_file]
 """
 
+from __future__ import annotations
+
 import sys
 import os
 import re
 import json
 from pathlib import Path
+from typing import List, Dict
 from urllib.parse import urlparse
 
 
-def extract_sources_from_file(filepath: str) -> list[dict]:
+# Matches "Source: Name — URL — date", "Source: Name - URL - date",
+# and bare "https://..." occurrences. Accepts en-dash or hyphen as separator.
+SEP = r"(?:\s*[—\-]\s*)"
+URL_PATTERN = re.compile(
+    rf'(?:Source:\s*(.+?){SEP})?'
+    rf'(https?://[^\s\)]+)'
+    rf'(?:{SEP}(\d{{4}}[-/]\d{{2}}[-/]\d{{2}}|\w+\s+\d{{4}}))?',
+    re.MULTILINE,
+)
+
+
+def extract_sources_from_file(filepath: str) -> List[Dict]:
     """Extract source entries from a single research note markdown file."""
-    sources = []
+    sources: List[Dict] = []
     content = Path(filepath).read_text(encoding="utf-8")
 
-    # Pattern: captures URL, title-like text nearby, and date patterns
-    url_pattern = re.compile(
-        r'(?:Source:\s*(.+?)\s*—\s*)?(https?://[^\s\)]+)(?:\s*—\s*(\d{4}[-/]\d{2}[-/]\d{2}|\w+\s+\d{4}))?',
-        re.MULTILINE
-    )
-
-    for match in url_pattern.finditer(content):
-        name = match.group(1) or ""
+    for match in URL_PATTERN.finditer(content):
+        name = (match.group(1) or "").strip().strip("*").strip()
         url = match.group(2).rstrip(".,;)")
         date = match.group(3) or ""
         domain = urlparse(url).netloc.replace("www.", "")
 
         sources.append({
-            "name": name.strip(),
+            "name": name,
             "url": url.strip(),
             "date": date.strip(),
             "domain": domain,
@@ -40,7 +48,7 @@ def extract_sources_from_file(filepath: str) -> list[dict]:
     return sources
 
 
-def deduplicate(sources: list[dict]) -> list[dict]:
+def deduplicate(sources: List[Dict]) -> List[Dict]:
     """Remove duplicate sources by URL."""
     seen_urls = set()
     unique = []
@@ -52,7 +60,7 @@ def deduplicate(sources: list[dict]) -> list[dict]:
     return unique
 
 
-def format_bibliography(sources: list[dict]) -> str:
+def format_bibliography(sources: List[Dict]) -> str:
     """Format sources as a numbered bibliography."""
     lines = ["# Source Bibliography", "", f"**Total unique sources:** {len(sources)}", ""]
     for i, s in enumerate(sources, 1):
